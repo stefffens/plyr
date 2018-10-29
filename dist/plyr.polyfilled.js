@@ -1480,7 +1480,7 @@ typeof navigator === "object" && (function (global, factory) {
         // Set @@toStringTag to native iterators
         _setToStringTag(IteratorPrototype, TAG, true);
         // fix for some old engines
-        if (typeof IteratorPrototype[ITERATOR$3] != 'function') _hide(IteratorPrototype, ITERATOR$3, returnThis);
+        if (!_library && typeof IteratorPrototype[ITERATOR$3] != 'function') _hide(IteratorPrototype, ITERATOR$3, returnThis);
       }
     }
     // fix Array#{values, @@iterator}.name in V8 / FF
@@ -1489,7 +1489,7 @@ typeof navigator === "object" && (function (global, factory) {
       $default = function values() { return $native.call(this); };
     }
     // Define iterator
-    if (BUGGY || VALUES_BUG || !proto[ITERATOR$3]) {
+    if ((!_library || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR$3])) {
       _hide(proto, ITERATOR$3, $default);
     }
     // Plug for library
@@ -2650,7 +2650,7 @@ typeof navigator === "object" && (function (global, factory) {
       return capability.promise;
     }
   });
-  _export(_export.S + _export.F * (!USE_NATIVE), PROMISE, {
+  _export(_export.S + _export.F * (_library || !USE_NATIVE), PROMISE, {
     // 25.4.4.6 Promise.resolve(x)
     resolve: function resolve(x) {
       return _promiseResolve(_library && this === Wrapper ? $Promise : this, x);
@@ -3195,15 +3195,12 @@ typeof navigator === "object" && (function (global, factory) {
   } // Element matches selector
 
   function matches(element, selector) {
-    var prototype = {
-      Element: Element
-    };
 
     function match() {
       return Array.from(document.querySelectorAll(selector)).includes(this);
     }
 
-    var matches = prototype.matches || prototype.webkitMatchesSelector || prototype.mozMatchesSelector || prototype.msMatchesSelector || match;
+    var matches = match;
     return matches.call(element, selector);
   } // Find all elements
 
@@ -4735,19 +4732,19 @@ typeof navigator === "object" && (function (global, factory) {
         if (!is.element(this.elements.settings.panels.loop)) {
             return;
         }
-         const options = ['start', 'end', 'all', 'reset'];
+          const options = ['start', 'end', 'all', 'reset'];
         const list = this.elements.settings.panels.loop.querySelector('[role="menu"]');
-         // Show the pane and tab
+          // Show the pane and tab
         toggleHidden(this.elements.settings.buttons.loop, false);
         toggleHidden(this.elements.settings.panels.loop, false);
-         // Toggle the pane and tab
+          // Toggle the pane and tab
         const toggle = !is.empty(this.loop.options);
         controls.toggleMenuButton.call(this, 'loop', toggle);
-         // Empty the menu
+          // Empty the menu
         emptyElement(list);
-         options.forEach(option => {
+          options.forEach(option => {
             const item = createElement('li');
-             const button = createElement(
+              const button = createElement(
                 'button',
                 extend(getAttributesFromSelector(this.config.selectors.buttons.loop), {
                     type: 'button',
@@ -4756,11 +4753,11 @@ typeof navigator === "object" && (function (global, factory) {
                 }),
                 i18n.get(option, this.config)
             );
-             if (['start', 'end'].includes(option)) {
+              if (['start', 'end'].includes(option)) {
                 const badge = controls.createBadge.call(this, '00:00');
                 button.appendChild(badge);
             }
-             item.appendChild(button);
+              item.appendChild(button);
             list.appendChild(item);
         });
     }, */
@@ -7384,9 +7381,7 @@ typeof navigator === "object" && (function (global, factory) {
 
   var loadjs_umd = createCommonjsModule(function (module, exports) {
   (function(root, factory) {
-    if (typeof undefined === 'function' && undefined.amd) {
-      undefined([], factory);
-    } else {
+    {
       module.exports = factory();
     }
   }(commonjsGlobal, function() {
@@ -10152,7 +10147,7 @@ typeof navigator === "object" && (function (global, factory) {
         this.media.loop = toggle; // Set default to be a true toggle
 
         /* const type = ['start', 'end', 'all', 'none', 'toggle'].includes(input) ? input : 'toggle';
-         switch (type) {
+          switch (type) {
             case 'start':
                 if (this.config.loop.end && this.config.loop.end <= this.currentTime) {
                     this.config.loop.end = null;
@@ -10160,20 +10155,20 @@ typeof navigator === "object" && (function (global, factory) {
                 this.config.loop.start = this.currentTime;
                 // this.config.loop.indicator.start = this.elements.display.played.value;
                 break;
-             case 'end':
+              case 'end':
                 if (this.config.loop.start >= this.currentTime) {
                     return this;
                 }
                 this.config.loop.end = this.currentTime;
                 // this.config.loop.indicator.end = this.elements.display.played.value;
                 break;
-             case 'all':
+              case 'all':
                 this.config.loop.start = 0;
                 this.config.loop.end = this.duration - 2;
                 this.config.loop.indicator.start = 0;
                 this.config.loop.indicator.end = 100;
                 break;
-             case 'toggle':
+              case 'toggle':
                 if (this.config.loop.active) {
                     this.config.loop.start = 0;
                     this.config.loop.end = null;
@@ -10182,7 +10177,7 @@ typeof navigator === "object" && (function (global, factory) {
                     this.config.loop.end = this.duration - 2;
                 }
                 break;
-             default:
+              default:
                 this.config.loop.start = 0;
                 this.config.loop.end = null;
                 break;
